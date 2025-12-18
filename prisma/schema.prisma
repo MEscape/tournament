@@ -7,73 +7,40 @@ datasource db {
 }
 
 model User {
-  id            String        @id @default(cuid())
-  email         String?       @unique
-  username      String        @unique
+  id            String      @id @default(cuid())
+  username      String      @unique
+  password      String
   imageUrl      String
-  role          Role          @default(USER)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  role          Role        @default(USER)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
-  // Relations
-  accounts      Account[]
-  sessions      Session[]
-  usedAccessCode AccessCode[]  @relation("UsedAccessCodes")
-  createdAccessCodes AccessCode[] @relation("CreatedAccessCodes")
-}
+  // 1:1 mit AccessCode (nur für USER role)
+  accessCodeId  String?     @unique
+  accessCode    AccessCode? @relation("UserAccessCode", fields: [accessCodeId], references: [id])
 
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
+  // Admin kann Codes erstellen
+  createdAccessCodes AccessCode[] @relation("AdminCreatedCodes")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
+  @@index([username])
 }
 
 model AccessCode {
   id            String    @id @default(cuid())
   code          String    @unique @default(uuid())
-  used          Boolean   @default(false)
   revoked       Boolean   @default(false)
   createdAt     DateTime  @default(now())
-  usedAt        DateTime?
+  revokedAt     DateTime?
 
-  // Relations
+  // Wer hat den Code erstellt (Admin)
   createdById   String
-  createdBy     User      @relation("CreatedAccessCodes", fields: [createdById], references: [id])
+  createdBy     User      @relation("AdminCreatedCodes", fields: [createdById], references: [id], onDelete: Cascade)
 
-  usedById      String?
-  usedBy        User?     @relation("UsedAccessCodes", fields: [usedById], references: [id])
+  // Welcher User hat diesen Code verwendet (1:1)
+  user          User?     @relation("UserAccessCode")
 
   @@index([code])
-  @@index([used, revoked])
+  @@index([revoked])
 }
 
 enum Role {

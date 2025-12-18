@@ -1,23 +1,32 @@
 import { PrismaClient } from '@prisma/client'
+import { hash } from 'bcrypt'
 
-const prisma = new PrismaClient()
+// For Prisma Accelerate, pass the URL as accelerateUrl
+const prisma = new PrismaClient({
+  accelerateUrl: process.env.DATABASE_URL,
+})
 
 async function main() {
   console.log('🌱 Seeding database...')
 
-  // Create Admin User
+  // Create Admin User with hashed password
+  const hashedPassword = await hash('admin123', 10)
+
   const admin = await prisma.user.upsert({
     where: { username: 'admin' },
     update: {},
     create: {
       username: 'admin',
-      email: 'admin@tournament.com',
+      password: hashedPassword,
       imageUrl: 'https://avatar.vercel.sh/admin',
       role: 'ADMIN',
     },
   })
 
-  console.log('✅ Admin user created:', admin.username)
+  console.log('✅ Admin user created:')
+  console.log('   Username: admin')
+  console.log('   Password: admin123')
+  console.log('   Role:', admin.role)
 
   // Create some test access codes
   const code1 = await prisma.accessCode.create({
