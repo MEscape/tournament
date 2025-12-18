@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String        @id @default(cuid())
+  email         String?       @unique
+  username      String        @unique
+  imageUrl      String
+  role          Role          @default(USER)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  usedAccessCode AccessCode[]  @relation("UsedAccessCodes")
+  createdAccessCodes AccessCode[] @relation("CreatedAccessCodes")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model AccessCode {
+  id            String    @id @default(cuid())
+  code          String    @unique @default(uuid())
+  used          Boolean   @default(false)
+  revoked       Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  usedAt        DateTime?
+
+  // Relations
+  createdById   String
+  createdBy     User      @relation("CreatedAccessCodes", fields: [createdById], references: [id])
+
+  usedById      String?
+  usedBy        User?     @relation("UsedAccessCodes", fields: [usedById], references: [id])
+
+  @@index([code])
+  @@index([used, revoked])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
