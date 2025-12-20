@@ -53,6 +53,12 @@ model ThemeSuggestion {
   id            String            @id @default(cuid())
   title         String
   description   String?
+
+  // Einkaufslisten-Context
+  shop          String?           // Welcher Laden (z.B. "ALDI", "LIDL", "Rewe")
+  budget        Int?              // Budget in Cent
+  preferences   String?           // JSON String mit Präferenzen (z.B. "nur Batterien", "viel Feuerwerk")
+
   status        ThemeStatus       @default(PENDING)
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
@@ -74,6 +80,12 @@ model Theme {
   id            String      @id @default(cuid())
   title         String      @unique
   description   String?
+
+  // Einkaufslisten-Context
+  shop          String?
+  budget        Int?
+  preferences   String?
+
   isActive      Boolean     @default(true)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt

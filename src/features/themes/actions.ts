@@ -12,6 +12,9 @@ import type { ApiResponse } from "@/types/api.types"
 export async function suggestTheme(data: {
   title: string
   description?: string
+  shop?: string
+  budget?: number
+  preferences?: string
 }): Promise<ApiResponse<void>> {
   try {
     const session = await auth()
@@ -23,6 +26,9 @@ export async function suggestTheme(data: {
       data: {
         title: data.title,
         description: data.description,
+        shop: data.shop,
+        budget: data.budget,
+        preferences: data.preferences,
         userId: session.user.id,
       },
     })

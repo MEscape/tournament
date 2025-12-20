@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { Lightbulb, Plus, CheckCircle, XCircle, Clock } from "lucide-react"
+import { Lightbulb, Plus, CheckCircle, XCircle, Clock, ShoppingCart, Euro, List } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -21,6 +21,8 @@ import {
   suggestTheme,
   getMyThemeSuggestions,
   getApprovedThemes,
+  getAllThemeSuggestions,
+  reviewThemeSuggestion,
 } from "@/features/themes/actions"
 
 interface ThemeSuggestion {
@@ -50,18 +52,27 @@ interface ThemesClientProps {
 export function ThemesClient({ user }: ThemesClientProps) {
   const [mysuggestions, setMySuggestions] = useState<ThemeSuggestion[]>([])
   const [approvedThemes, setApprovedThemes] = useState<ApprovedTheme[]>([])
+  const [allSuggestions, setAllSuggestions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
+  const [shop, setShop] = useState("")
+  const [budget, setBudget] = useState("")
+  const [preferences, setPreferences] = useState("")
   const [submitting, setSubmitting] = useState(false)
+
+  const isAdmin = user?.role === "ADMIN"
 
   useEffect(() => {
     const loadData = async () => {
-      const [approved, my] = await Promise.all([
+      const results = await Promise.all([
         getApprovedThemes(),
         user ? getMyThemeSuggestions() : Promise.resolve({ success: true, data: [] }),
+        isAdmin ? getAllThemeSuggestions() : Promise.resolve({ success: true, data: [] }),
       ])
+
+      const [approved, my, all] = results
 
       if (approved.success && approved.data) {
         setApprovedThemes(approved.data)
@@ -69,11 +80,14 @@ export function ThemesClient({ user }: ThemesClientProps) {
       if (my.success && my.data) {
         setMySuggestions(my.data)
       }
+      if (all.success && all.data) {
+        setAllSuggestions(all.data)
+      }
       setLoading(false)
     }
 
     loadData()
-  }, [user])
+  }, [user, isAdmin])
 
   const handleSubmit = async () => {
     if (!title.trim()) {
@@ -82,10 +96,19 @@ export function ThemesClient({ user }: ThemesClientProps) {
     }
 
     setSubmitting(true)
-    const result = await suggestTheme({ title, description })
+    const result = await suggestTheme({
+      title,
+      description: description || undefined,
+      shop: shop || undefined,
+      budget: budget ? parseInt(budget) * 100 : undefined, // Convert Euro to Cent
+      preferences: preferences || undefined,
+    })
     if (result.success) {
       setTitle("")
       setDescription("")
+      setShop("")
+      setBudget("")
+      setPreferences("")
       setDialogOpen(false)
       // Reload data
       const my = await getMyThemeSuggestions()
@@ -96,6 +119,25 @@ export function ThemesClient({ user }: ThemesClientProps) {
       alert(result.error)
     }
     setSubmitting(false)
+  }
+
+  const handleReview = async (suggestionId: string, status: "APPROVED" | "REJECTED") => {
+    const result = await reviewThemeSuggestion({ suggestionId, status })
+    if (result.success) {
+      // Reload all data
+      const [all, approved] = await Promise.all([
+        getAllThemeSuggestions(),
+        getApprovedThemes(),
+      ])
+      if (all.success && all.data) {
+        setAllSuggestions(all.data)
+      }
+      if (approved.success && approved.data) {
+        setApprovedThemes(approved.data)
+      }
+    } else {
+      alert(result.error)
+    }
   }
 
   const getStatusIcon = (status: string) => {
@@ -180,31 +222,63 @@ export function ThemesClient({ user }: ThemesClientProps) {
                   Thema vorschlagen
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Neues Thema vorschlagen</DialogTitle>
                   <DialogDescription>
-                    Schlage ein neues Thema für zukünftige Matches vor
+                    Schlage eine Einkaufsliste für zukünftige Matches vor
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 mt-4">
                   <div>
-                    <Label htmlFor="title">Titel*</Label>
+                    <Label htmlFor="title">Titel der Einkaufsliste*</Label>
                     <Input
                       id="title"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
-                      placeholder="z.B. Künstliche Intelligenz"
+                      placeholder="z.B. Silvester Einkauf 2025"
                       maxLength={100}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="description">Beschreibung (optional)</Label>
+                    <Label htmlFor="shop">Laden (optional)</Label>
+                    <Input
+                      id="shop"
+                      value={shop}
+                      onChange={(e) => setShop(e.target.value)}
+                      placeholder="z.B. ALDI, LIDL, Rewe"
+                      maxLength={50}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="budget">Budget in € (optional)</Label>
+                    <Input
+                      id="budget"
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={budget}
+                      onChange={(e) => setBudget(e.target.value)}
+                      placeholder="z.B. 50"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="preferences">Präferenzen (optional)</Label>
+                    <Input
+                      id="preferences"
+                      value={preferences}
+                      onChange={(e) => setPreferences(e.target.value)}
+                      placeholder="z.B. nur Batterien, viel Feuerwerk, keine Raketen"
+                      maxLength={200}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="description">Zusätzliche Beschreibung (optional)</Label>
                     <Input
                       id="description"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      placeholder="Kurze Beschreibung des Themas"
+                      placeholder="Weitere Details zur Einkaufsliste"
                       maxLength={200}
                     />
                   </div>
@@ -226,6 +300,83 @@ export function ThemesClient({ user }: ThemesClientProps) {
             </Card>
           )}
         </div>
+
+        {/* Admin: Pending Suggestions */}
+        {isAdmin && allSuggestions.filter((s) => s.status === "PENDING").length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4 text-orange-500">
+              👑 Ausstehende Vorschläge ({allSuggestions.filter((s) => s.status === "PENDING").length})
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {allSuggestions
+                .filter((s) => s.status === "PENDING")
+                .map((suggestion) => (
+                  <Card
+                    key={suggestion.id}
+                    className="p-4 bg-orange-500/10 backdrop-blur border-orange-500/30"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-semibold text-lg">{suggestion.title}</h3>
+                      <Clock className="h-5 w-5 text-orange-500 flex-shrink-0" />
+                    </div>
+
+                    {/* Einkaufslisten Details */}
+                    <div className="space-y-2 mb-3 text-sm">
+                      {suggestion.shop && (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <ShoppingCart className="h-4 w-4" />
+                          <span>{suggestion.shop}</span>
+                        </div>
+                      )}
+                      {suggestion.budget && (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Euro className="h-4 w-4" />
+                          <span>{(suggestion.budget / 100).toFixed(2)} €</span>
+                        </div>
+                      )}
+                      {suggestion.preferences && (
+                        <div className="flex items-start gap-2 text-muted-foreground">
+                          <List className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                          <span className="text-xs">{suggestion.preferences}</span>
+                        </div>
+                      )}
+                      {suggestion.description && (
+                        <p className="text-muted-foreground text-xs italic mt-2">
+                          {suggestion.description}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="text-xs text-muted-foreground mb-3">
+                      Von: {suggestion.user.username}
+                    </div>
+
+                    {/* Review Buttons */}
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 border-green-500 text-green-500 hover:bg-green-500/20"
+                        onClick={() => handleReview(suggestion.id, "APPROVED")}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-1" />
+                        Annehmen
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 border-red-500 text-red-500 hover:bg-red-500/20"
+                        onClick={() => handleReview(suggestion.id, "REJECTED")}
+                      >
+                        <XCircle className="h-4 w-4 mr-1" />
+                        Ablehnen
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+            </div>
+          </div>
+        )}
 
         {/* My Suggestions */}
         {user && mysuggestions.length > 0 && (

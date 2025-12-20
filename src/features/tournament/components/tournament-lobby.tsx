@@ -161,25 +161,23 @@ export function TournamentLobby({ user }: TournamentLobbyProps) {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            {/* Quick Actions */}
-            {!isAdmin && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="lg">
-                    <Zap className="h-5 w-5 mr-2" />
-                    Quick Actions
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem asChild>
-                    <Link href="/themes" className="cursor-pointer">
-                      <Lightbulb className="h-4 w-4 mr-2" />
-                      Themen vorschlagen
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+            {/* Quick Actions - für alle */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="lg">
+                  <Zap className="h-5 w-5 mr-2" />
+                  Quick Actions
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem asChild>
+                  <Link href="/themes" className="cursor-pointer">
+                    <Lightbulb className="h-4 w-4 mr-2" />
+                    {isAdmin ? "Themen verwalten" : "Themen vorschlagen"}
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <SignOutButton />
           </div>
         </div>
