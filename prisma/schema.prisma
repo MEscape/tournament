@@ -22,13 +22,18 @@ model User {
   // Admin kann Codes erstellen
   createdAccessCodes AccessCode[] @relation("AdminCreatedCodes")
 
+  // Theme Suggestions
+  themeSuggestions ThemeSuggestion[]
+
   @@index([username])
 }
+
 
 model AccessCode {
   id            String    @id @default(cuid())
   code          String    @unique @default(uuid())
   revoked       Boolean   @default(false)
+  isAdminCode   Boolean   @default(false)
   createdAt     DateTime  @default(now())
   revokedAt     DateTime?
 
@@ -41,6 +46,46 @@ model AccessCode {
 
   @@index([code])
   @@index([revoked])
+  @@index([isAdminCode])
+}
+
+model ThemeSuggestion {
+  id            String            @id @default(cuid())
+  title         String
+  description   String?
+  status        ThemeStatus       @default(PENDING)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  reviewedAt    DateTime?
+
+  // User who suggested the theme
+  userId        String
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Admin review
+  reviewNote    String?
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Theme {
+  id            String      @id @default(cuid())
+  title         String      @unique
+  description   String?
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([isActive])
+  @@index([title])
+}
+
+enum ThemeStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 enum Role {

@@ -7,9 +7,9 @@ import { requireAdmin } from "@/lib/auth"
 import type { ApiResponse } from "@/types/api.types"
 import type { AccessCodeWithRelations } from "@/types/auth.types"
 
-export async function createAccessCode(): Promise<
-  ApiResponse<AccessCodeWithRelations>
-> {
+export async function createAccessCode(
+  isAdminCode: boolean = false
+): Promise<ApiResponse<AccessCodeWithRelations>> {
   try {
     const session = await requireAdmin()
 
@@ -17,6 +17,7 @@ export async function createAccessCode(): Promise<
       data: {
         code: uuidv4(),
         createdById: session.user.id,
+        isAdminCode,
       },
       include: {
         createdBy: {

@@ -20,6 +20,7 @@ export interface AccessCodeWithRelations {
   id: string
   code: string
   revoked: boolean
+  isAdminCode: boolean
   createdAt: Date
   revokedAt: Date | null
   createdBy: {

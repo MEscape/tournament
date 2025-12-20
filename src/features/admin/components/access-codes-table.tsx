@@ -92,6 +92,17 @@ export function AccessCodesTable({ codes }: AccessCodesTableProps) {
     )
   }
 
+  const getTypeBadge = (code: AccessCodeWithRelations) => {
+    if (code.isAdminCode) {
+      return (
+        <Badge className="bg-purple-600 hover:bg-purple-700 text-white ml-2">
+          Admin
+        </Badge>
+      )
+    }
+    return null
+  }
+
   return (
     <div className="rounded-md border border-border bg-card">
       <Table>
@@ -151,7 +162,12 @@ export function AccessCodesTable({ codes }: AccessCodesTableProps) {
                     </Button>
                   </div>
                 </TableCell>
-                <TableCell>{getStatusBadge(code)}</TableCell>
+                <TableCell>
+                  <div className="flex items-center">
+                    {getStatusBadge(code)}
+                    {getTypeBadge(code)}
+                  </div>
+                </TableCell>
                 <TableCell className="text-muted-foreground">
                   {format(new Date(code.createdAt), "dd.MM.yyyy HH:mm")}
                 </TableCell>

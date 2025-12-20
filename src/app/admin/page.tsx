@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth"
+import Image from "next/image"
 import { getAllAccessCodes } from "@/features/admin/actions"
 import { AccessCodesTable } from "@/features/admin/components/access-codes-table"
 import { CreateCodeButton } from "@/features/admin/components/create-code-button"
@@ -34,8 +35,22 @@ export default async function AdminPage() {
   const revoked = codes.filter((c) => c.revoked).length
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="relative min-h-screen bg-background p-8">
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/background.png"
+          alt="Background"
+          fill
+          className="object-cover opacity-20"
+          priority
+          quality={85}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/80 to-background" />
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-4xl font-bold text-foreground mb-2">

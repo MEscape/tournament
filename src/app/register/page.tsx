@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
+import imageCompression from "browser-image-compression"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -41,15 +42,28 @@ export default function RegisterPage() {
     setValidating(false)
   }
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      setImageFile(file)
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string)
+      try {
+        // Komprimiere Bild (max 1MB, max 1920x1920)
+        const options = {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
+        }
+        const compressedFile = await imageCompression(file, options)
+        setImageFile(compressedFile)
+
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          setImagePreview(reader.result as string)
+        }
+        reader.readAsDataURL(compressedFile)
+      } catch (error) {
+        console.error("Fehler beim Komprimieren:", error)
+        setError("Fehler beim Verarbeiten des Bildes")
       }
-      reader.readAsDataURL(file)
     }
   }
 
@@ -157,7 +171,7 @@ export default function RegisterPage() {
                 <Input
                   id="username"
                   type="text"
-                  placeholder="Wähle einen Username"
+                  placeholder="max_power oder MaxPower123"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="mt-2"
@@ -168,7 +182,10 @@ export default function RegisterPage() {
                   autoComplete="username"
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  3-20 Zeichen, nur Buchstaben, Zahlen, _ und -
+                  3-20 Zeichen: Buchstaben (a-z), Zahlen (0-9), _ und -
+                </p>
+                <p className="text-xs text-red-400 mt-1">
+                  Keine Punkte (.), Leerzeichen oder Sonderzeichen!
                 </p>
               </div>
 
