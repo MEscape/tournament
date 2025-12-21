@@ -16,7 +16,7 @@ import {
   joinTournament,
   leaveTournament,
 } from "../actions/tournament-actions"
-import { startMatchDrawing } from "../actions/match-actions"
+import { startMatchDrawing } from "../actions/drawing-actions"
 
 interface TournamentLobbyProps {
   user: {

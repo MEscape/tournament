@@ -212,8 +212,8 @@ export function TournamentBracketNew({
         </div>
       </div>
 
-      {/* Admin Match Overlay */}
-      {selectedMatch && (
+      {/* Admin Match Overlay - nur für Admins */}
+      {isAdmin && selectedMatch && (
         <AdminMatchOverlay
           open={!!selectedMatch}
           onClose={() => setSelectedMatch(null)}

@@ -19,8 +19,6 @@ function shuffleArray<T>(array: T[]): T[] {
 function calculateRounds(playerCount: number): number {
   return Math.ceil(Math.log2(playerCount))
 }
-
-// Create initial matches (Round 1)
 function createInitialMatches(players: TournamentPlayer[]): Match[] {
   const shuffled = shuffleArray(players)
   const matches: Match[] = []
@@ -65,6 +63,20 @@ export async function startMatchDrawing(): Promise<ApiResponse<{
       return { success: false, error: "Keine Berechtigung" }
     }
 
+    // WICHTIG: Prüfe ob Matches bereits existieren
+    const existingMatches = tournamentStore.getMatches()
+    if (existingMatches.length > 0) {
+      // Matches wurden bereits ausgelost - return existing
+      console.log(`[Drawing] Matches already drawn (${existingMatches.length}), returning existing`)
+      return {
+        success: true,
+        data: {
+          matches: existingMatches,
+          totalRounds: tournamentStore.getTotalRounds()
+        }
+      }
+    }
+
     const players = tournamentStore.getPlayers()
     const stats = tournamentStore.getStats()
 
@@ -99,53 +111,4 @@ export async function startMatchDrawing(): Promise<ApiResponse<{
   }
 }
 
-export async function setMatchWinner(
-  matchId: string,
-  winnerId: string
-): Promise<ApiResponse<void>> {
-  try {
-    const session = await auth()
-    if (!session?.user || session.user.role !== "ADMIN") {
-      return { success: false, error: "Keine Berechtigung" }
-    }
-
-    const success = tournamentStore.updateMatchWinner(matchId, winnerId)
-
-    if (!success) {
-      return { success: false, error: "Match oder Spieler nicht gefunden" }
-    }
-
-    // TODO: Progress to next round if all matches in current round completed
-
-    return { success: true }
-  } catch (error) {
-    console.error("Set winner error:", error)
-    return { success: false, error: "Fehler beim Setzen des Gewinners" }
-  }
-}
-
-export async function getTournamentState(): Promise<ApiResponse<{
-  matches: Match[]
-  totalRounds: number
-  status: string
-}>> {
-  try {
-    const session = await auth()
-    if (!session?.user) {
-      return { success: false, error: "Nicht angemeldet" }
-    }
-
-    return {
-      success: true,
-      data: {
-        matches: tournamentStore.getMatches(),
-        totalRounds: tournamentStore.getTotalRounds(),
-        status: tournamentStore.getStatus()
-      }
-    }
-  } catch (error) {
-    console.error("Get tournament state error:", error)
-    return { success: false, error: "Fehler beim Laden des Tournament Status" }
-  }
-}
 
