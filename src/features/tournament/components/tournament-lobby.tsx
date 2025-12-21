@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { Users, Crown, LogOut, Play, UserX, Check, X, Lightbulb, Zap } from "lucide-react"
+import { Users, Crown, LogOut, Play, UserX, Check, X, Lightbulb, Zap, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -154,10 +154,18 @@ export function TournamentLobby({ user }: TournamentLobbyProps) {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-5xl font-bold text-foreground mb-3 flex items-center gap-3">
-              🎆 Tournament Lobby
+              <Sparkles className="h-12 w-12 text-primary" />
+              Tournament Lobby
             </h1>
             <p className="text-muted-foreground text-lg">
-              {isAdmin ? "👑 Admin Panel" : `Willkommen, ${user.username}!`}
+              {isAdmin ? (
+                <span className="flex items-center gap-2">
+                  <Crown className="h-5 w-5 text-primary" />
+                  Admin Panel
+                </span>
+              ) : (
+                `Willkommen, ${user.username}!`
+              )}
             </p>
           </div>
           <div className="flex items-center gap-3">

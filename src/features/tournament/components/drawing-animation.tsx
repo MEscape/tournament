@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
-import { Sparkles, Zap } from "lucide-react"
+import { Sparkles, Zap, Ghost, CheckCircle } from "lucide-react"
 
 interface Player {
   userId: string
@@ -31,6 +31,17 @@ export function DrawingAnimation({ matches, onComplete }: DrawingAnimationProps)
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0)
   const [phase, setPhase] = useState<"intro" | "revealing" | "complete">("intro")
   const [revealedMatches, setRevealedMatches] = useState<Match[]>([])
+
+  // Generate random particle positions once
+  const [particles] = useState(() =>
+    [...Array(20)].map(() => ({
+      x: Math.random() * (typeof window !== "undefined" ? window.innerWidth : 1920),
+      y: Math.random() * (typeof window !== "undefined" ? window.innerHeight : 1080),
+      endY: Math.random() * (typeof window !== "undefined" ? window.innerHeight : 1080),
+      duration: 3 + Math.random() * 2,
+      delay: Math.random() * 2,
+    }))
+  )
 
   const currentMatch = matches[currentMatchIndex]
 
@@ -87,23 +98,23 @@ export function DrawingAnimation({ matches, onComplete }: DrawingAnimationProps)
 
         {/* Floating Particles */}
         <div className="absolute inset-0">
-          {[...Array(20)].map((_, i) => (
+          {particles.map((particle, i) => (
             <motion.div
               key={i}
               className="absolute w-2 h-2 bg-primary rounded-full"
               initial={{
-                x: Math.random() * window.innerWidth,
-                y: Math.random() * window.innerHeight,
+                x: particle.x,
+                y: particle.y,
                 opacity: 0,
               }}
               animate={{
-                y: [null, Math.random() * window.innerHeight],
+                y: [null, particle.endY],
                 opacity: [0, 1, 0],
               }}
               transition={{
-                duration: 3 + Math.random() * 2,
+                duration: particle.duration,
                 repeat: Infinity,
-                delay: Math.random() * 2,
+                delay: particle.delay,
               }}
             />
           ))}
@@ -135,8 +146,10 @@ export function DrawingAnimation({ matches, onComplete }: DrawingAnimationProps)
               >
                 <Sparkles className="h-24 w-24 text-primary" />
               </motion.div>
-              <h1 className="text-6xl font-bold text-foreground mb-4">
-                🎆 Turnier Auslosung
+              <h1 className="text-6xl font-bold text-foreground mb-4 flex items-center justify-center gap-4">
+                <Sparkles className="h-16 w-16 text-primary" />
+                Turnier Auslosung
+                <Sparkles className="h-16 w-16 text-primary" />
               </h1>
               <p className="text-2xl text-muted-foreground">
                 {matches.length} Matches werden ausgelost...
@@ -285,7 +298,7 @@ export function DrawingAnimation({ matches, onComplete }: DrawingAnimationProps)
                       animate={{ scale: 1 }}
                       className="w-40 h-40 rounded-full border-4 border-dashed border-muted flex items-center justify-center"
                     >
-                      <span className="text-6xl">👻</span>
+                      <Ghost className="h-20 w-20 text-muted-foreground" />
                     </motion.div>
                   )}
                 </motion.div>
@@ -314,8 +327,9 @@ export function DrawingAnimation({ matches, onComplete }: DrawingAnimationProps)
               >
                 <Sparkles className="h-24 w-24 text-primary" />
               </motion.div>
-              <h1 className="text-6xl font-bold text-foreground mb-4">
-                ✅ Auslosung abgeschlossen!
+              <h1 className="text-6xl font-bold text-foreground mb-4 flex items-center justify-center gap-4">
+                <CheckCircle className="h-16 w-16 text-green-500" />
+                Auslosung abgeschlossen!
               </h1>
               <p className="text-2xl text-muted-foreground">
                 Weiterleitung zum Bracket...

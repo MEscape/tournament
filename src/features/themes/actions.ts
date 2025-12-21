@@ -1,3 +1,4 @@
+
 "use server"
 
 import { auth } from "@/lib/auth"
@@ -50,6 +51,9 @@ export async function getMyThemeSuggestions(): Promise<
       status: string
       createdAt: Date
       reviewNote: string | null
+      shop: string | null
+      budget: number | null
+      preferences: string | null
     }>
   >
 > {
@@ -112,6 +116,9 @@ export async function getAllThemeSuggestions(): Promise<
       createdAt: Date
       user: { username: string }
       reviewNote: string | null
+      shop: string | null
+      budget: number | null
+      preferences: string | null
     }>
   >
 > {
@@ -166,10 +173,18 @@ export async function reviewThemeSuggestion(data: {
       if (suggestion) {
         await prisma.theme.upsert({
           where: { title: suggestion.title },
-          update: { isActive: true },
+          update: {
+            isActive: true,
+            shop: suggestion.shop,
+            budget: suggestion.budget,
+            preferences: suggestion.preferences,
+          },
           create: {
             title: suggestion.title,
             description: suggestion.description,
+            shop: suggestion.shop,
+            budget: suggestion.budget,
+            preferences: suggestion.preferences,
           },
         })
       }

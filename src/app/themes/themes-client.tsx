@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { Lightbulb, Plus, CheckCircle, XCircle, Clock, ShoppingCart, Euro, List } from "lucide-react"
+import { Lightbulb, Plus, CheckCircle, XCircle, Clock, ShoppingCart, Euro, List, Crown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -32,12 +32,19 @@ interface ThemeSuggestion {
   status: string
   createdAt: Date
   reviewNote: string | null
+  shop: string | null
+  budget: number | null
+  preferences: string | null
 }
 
 interface ApprovedTheme {
   id: string
   title: string
   description: string | null
+}
+
+interface AllSuggestion extends ThemeSuggestion {
+  user: { username: string }
 }
 
 interface ThemesClientProps {
@@ -52,7 +59,7 @@ interface ThemesClientProps {
 export function ThemesClient({ user }: ThemesClientProps) {
   const [mysuggestions, setMySuggestions] = useState<ThemeSuggestion[]>([])
   const [approvedThemes, setApprovedThemes] = useState<ApprovedTheme[]>([])
-  const [allSuggestions, setAllSuggestions] = useState<any[]>([])
+  const [allSuggestions, setAllSuggestions] = useState<AllSuggestion[]>([])
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [title, setTitle] = useState("")
@@ -304,8 +311,9 @@ export function ThemesClient({ user }: ThemesClientProps) {
         {/* Admin: Pending Suggestions */}
         {isAdmin && allSuggestions.filter((s) => s.status === "PENDING").length > 0 && (
           <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-4 text-orange-500">
-              👑 Ausstehende Vorschläge ({allSuggestions.filter((s) => s.status === "PENDING").length})
+            <h2 className="text-2xl font-bold mb-4 text-orange-500 flex items-center gap-2">
+              <Crown className="h-6 w-6" />
+              Ausstehende Vorschläge ({allSuggestions.filter((s) => s.status === "PENDING").length})
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {allSuggestions

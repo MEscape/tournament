@@ -5,7 +5,8 @@ import { Card } from "@/components/ui/card"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import React from "react";
+import React from "react"
+import { Sparkles } from "lucide-react"
 
 export default function WelcomePage() {
   const router = useRouter()
@@ -72,8 +73,10 @@ export default function WelcomePage() {
               Du benötigst einen gültigen Access Code zur Registrierung. <br />
               Codes können über Mesc und andere Bewerter angefragt werden.
             </p>
-            <p className="text-xs text-muted-foreground mt-2">
-              🎆 Feuerwerk Einkaufslisten Turnier 🎆
+            <p className="text-xs text-muted-foreground mt-2 flex items-center justify-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              Feuerwerk Einkaufslisten Turnier
+              <Sparkles className="h-4 w-4 text-primary" />
             </p>
           </div>
         </div>

@@ -106,9 +106,14 @@ export function TournamentBracket({
                 {/* Round Header */}
                 <div className="text-center mb-4">
                   <Badge variant="outline" className="text-lg px-4 py-2">
-                    {roundIndex === totalRounds - 1
-                      ? "🏆 Finale"
-                      : `Runde ${roundIndex + 1}`}
+                    {roundIndex === totalRounds - 1 ? (
+                      <span className="flex items-center gap-2">
+                        <Trophy className="h-4 w-4" />
+                        Finale
+                      </span>
+                    ) : (
+                      `Runde ${roundIndex + 1}`
+                    )}
                   </Badge>
                 </div>
 

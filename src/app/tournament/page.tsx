@@ -7,7 +7,7 @@ export default async function TournamentPage() {
   const session = await auth()
 
   if (!session?.user) {
-    redirect("/user-login")
+    redirect("/login")
   }
 
   return (
