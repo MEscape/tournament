@@ -16,7 +16,7 @@ interface Match {
   id: string
   round: number
   matchNumber: number
-  player1: Player
+  player1: Player | null
   player2: Player | null
   winner: Player | null
   status: "pending" | "completed" | "bye"
@@ -179,55 +179,65 @@ export function DrawingAnimation({ matches, onComplete }: DrawingAnimationProps)
               {/* Players Reveal */}
               <div className="flex items-center justify-center gap-12">
                 {/* Player 1 */}
-                <motion.div
-                  initial={{ x: -200, opacity: 0, rotate: -180 }}
-                  animate={{ x: 0, opacity: 1, rotate: 0 }}
-                  transition={{ type: "spring", bounce: 0.6, duration: 1 }}
-                  className="flex flex-col items-center"
-                >
+                {currentMatch.player1 ? (
                   <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    className="relative"
+                    initial={{ x: -200, opacity: 0, rotate: -180 }}
+                    animate={{ x: 0, opacity: 1, rotate: 0 }}
+                    transition={{ type: "spring", bounce: 0.6, duration: 1 }}
+                    className="flex flex-col items-center"
                   >
                     <motion.div
-                      animate={{
-                        boxShadow: [
-                          "0 0 0 0 rgba(255, 0, 0, 0.7)",
-                          "0 0 0 20px rgba(255, 0, 0, 0)",
-                        ],
-                      }}
-                      transition={{
-                        duration: 1.5,
-                        repeat: Infinity,
-                      }}
-                      className="w-40 h-40 rounded-full overflow-hidden border-4 border-primary"
+                      whileHover={{ scale: 1.1 }}
+                      className="relative"
                     >
-                      <Image
-                        src={currentMatch.player1.imageUrl}
-                        alt={currentMatch.player1.username}
-                        width={160}
-                        height={160}
-                        className="w-full h-full object-cover"
-                      />
+                      <motion.div
+                        animate={{
+                          boxShadow: [
+                            "0 0 0 0 rgba(255, 0, 0, 0.7)",
+                            "0 0 0 20px rgba(255, 0, 0, 0)",
+                          ],
+                        }}
+                        transition={{
+                          duration: 1.5,
+                          repeat: Infinity,
+                        }}
+                        className="w-40 h-40 rounded-full overflow-hidden border-4 border-primary"
+                      >
+                        <Image
+                          src={currentMatch.player1.imageUrl}
+                          alt={currentMatch.player1.username}
+                          width={160}
+                          height={160}
+                          className="w-full h-full object-cover"
+                        />
+                      </motion.div>
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.5 }}
+                        className="absolute -top-2 -right-2 bg-primary rounded-full p-2"
+                      >
+                        <Zap className="h-6 w-6 text-white" />
+                      </motion.div>
                     </motion.div>
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ delay: 0.5 }}
-                      className="absolute -top-2 -right-2 bg-primary rounded-full p-2"
+                    <motion.h3
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.8 }}
+                      className="text-2xl font-bold mt-4 text-foreground"
                     >
-                      <Zap className="h-6 w-6 text-white" />
-                    </motion.div>
+                      {currentMatch.player1.username}
+                    </motion.h3>
                   </motion.div>
-                  <motion.h3
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.8 }}
-                    className="text-2xl font-bold mt-4 text-foreground"
+                ) : (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="w-40 h-40 rounded-full border-4 border-dashed border-muted flex items-center justify-center"
                   >
-                    {currentMatch.player1.username}
-                  </motion.h3>
-                </motion.div>
+                    <Ghost className="h-20 w-20 text-muted-foreground" />
+                  </motion.div>
+                )}
 
                 {/* VS */}
                 <motion.div
