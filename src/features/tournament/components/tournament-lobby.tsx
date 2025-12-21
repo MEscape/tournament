@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
@@ -31,26 +31,12 @@ export function TournamentLobby({ user }: TournamentLobbyProps) {
   const { players, loading, stats, refresh } = useTournament()
   const [actionLoading, setActionLoading] = useState(false)
   const router = useRouter()
-  const hasRedirectedRef = useRef(false)
 
   const isAdmin = user.role === "ADMIN"
   const currentPlayer = players.find((p) => p.userId === user.id)
   const isJoined = !!currentPlayer
 
-  // Auto-redirect to bracket wenn Tournament gestartet wurde
-  // WICHTIG: Nur einmal redirecten, nicht bei jedem Polling Update!
-  useEffect(() => {
-    if (hasRedirectedRef.current) {
-      // Bereits redirected - nicht nochmal!
-      return
-    }
-
-    if (stats.status === "DRAWING" || stats.status === "RUNNING" || stats.status === "FINISHED") {
-      console.log("[Lobby] Tournament started, redirecting to bracket...")
-      hasRedirectedRef.current = true
-      router.push("/tournament/bracket")
-    }
-  }, [stats.status, router])
+  // Kein Auto-Redirect mehr hier - Server-Side übernimmt das!
 
   const handleJoin = async () => {
     setActionLoading(true)
