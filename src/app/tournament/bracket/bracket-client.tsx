@@ -75,11 +75,10 @@ export function BracketClient({ user }: BracketClientProps) {
   }
 
   return (
-    <TournamentBracket
+    <TournamentBracketNew
       matches={matches}
       totalRounds={totalRounds}
       currentUser={user}
-      onSelectWinner={handleSelectWinner}
     />
   )
 }

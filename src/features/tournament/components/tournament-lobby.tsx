@@ -8,13 +8,7 @@ import { Users, Crown, LogOut, Play, UserX, Check, X, Lightbulb, Zap, Sparkles }
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { SignOutButton } from "@/components/sign-out-button"
+import { GlobalNavigation } from "@/components/global-navigation"
 import { useTournament } from "../tournament-provider"
 import {
   toggleReady,
@@ -150,8 +144,11 @@ export function TournamentLobby({ user }: TournamentLobbyProps) {
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto p-8">
+        {/* Global Navigation */}
+        <GlobalNavigation user={user} />
+
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="mt-20 mb-8">
           <div>
             <h1 className="text-5xl font-bold text-foreground mb-3 flex items-center gap-3">
               <Sparkles className="h-12 w-12 text-primary" />
@@ -167,26 +164,6 @@ export function TournamentLobby({ user }: TournamentLobbyProps) {
                 `Willkommen, ${user.username}!`
               )}
             </p>
-          </div>
-          <div className="flex items-center gap-3">
-            {/* Quick Actions - für alle */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="lg">
-                  <Zap className="h-5 w-5 mr-2" />
-                  Quick Actions
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem asChild>
-                  <Link href="/themes" className="cursor-pointer">
-                    <Lightbulb className="h-4 w-4 mr-2" />
-                    {isAdmin ? "Themen verwalten" : "Themen vorschlagen"}
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <SignOutButton />
           </div>
         </div>
 

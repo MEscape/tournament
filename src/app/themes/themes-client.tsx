@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { SignOutButton } from "@/components/sign-out-button"
+import { GlobalNavigation } from "@/components/global-navigation"
 import {
   Dialog,
   DialogContent,
@@ -205,8 +205,11 @@ export function ThemesClient({ user }: ThemesClientProps) {
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto p-8">
+        {/* Global Navigation */}
+        {user && <GlobalNavigation user={user} />}
+
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="mt-20 mb-8">
           <div>
             <h1 className="text-5xl font-bold text-foreground mb-3 flex items-center gap-3">
               <Lightbulb className="h-12 w-12 text-primary" />
@@ -216,7 +219,6 @@ export function ThemesClient({ user }: ThemesClientProps) {
               Schlage neue Themen vor oder sieh dir genehmigte Themen an
             </p>
           </div>
-          {user && <SignOutButton />}
         </div>
 
         {/* Actions */}
