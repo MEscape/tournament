@@ -20,26 +20,21 @@ export function BracketClient({ user }: BracketClientProps) {
   const router = useRouter()
 
   // Initialize state from store immediately
-  const status = tournamentStore.getStatus()
+  const initialStatus = tournamentStore.getStatus()
   const storeMatches = tournamentStore.getMatches()
   const storeTotalRounds = tournamentStore.getTotalRounds()
 
   const [loading, setLoading] = useState(true)
-  const [showDrawing, setShowDrawing] = useState(status === "DRAWING")
+  const [showDrawing, setShowDrawing] = useState(initialStatus === "DRAWING")
   const [matches] = useState<Match[]>(storeMatches)
   const [totalRounds] = useState(storeTotalRounds)
 
   useEffect(() => {
-    // Validate state
-    if (status === "LOBBY") {
-      // Not started yet
-      router.push("/tournament")
-      return
-    }
+    // Initial validation nur einmal - danach keine Redirects mehr!
+    // Das verhindert redirect loops wenn der Store sich ändert
 
-    // Allow DRAWING, RUNNING, and FINISHED
-    if (status !== "DRAWING" && status !== "RUNNING" && status !== "FINISHED") {
-      console.log("[Bracket] Invalid status:", status, "- redirecting to lobby")
+    if (initialStatus === "LOBBY") {
+      console.log("[Bracket] Status is LOBBY - redirecting to lobby")
       router.push("/tournament")
       return
     }
@@ -50,8 +45,12 @@ export function BracketClient({ user }: BracketClientProps) {
       return
     }
 
+    // Validation erfolgreich - setze loading auf false
     setLoading(false)
-  }, [router, status, storeMatches.length])
+    console.log("[Bracket] Initialized successfully with status:", initialStatus)
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Nur einmal beim Mount!
 
   const handleDrawingComplete = () => {
     setShowDrawing(false)
