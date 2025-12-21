@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
@@ -35,6 +35,14 @@ export function TournamentLobby({ user }: TournamentLobbyProps) {
   const isAdmin = user.role === "ADMIN"
   const currentPlayer = players.find((p) => p.userId === user.id)
   const isJoined = !!currentPlayer
+
+  // Auto-redirect to bracket wenn Tournament gestartet wurde
+  useEffect(() => {
+    if (stats.status === "DRAWING" || stats.status === "RUNNING" || stats.status === "FINISHED") {
+      console.log("[Lobby] Tournament started, redirecting to bracket...")
+      router.push("/tournament/bracket")
+    }
+  }, [stats.status, router])
 
   const handleJoin = async () => {
     setActionLoading(true)

@@ -32,16 +32,20 @@ export function BracketClient({ user }: BracketClientProps) {
   useEffect(() => {
     // Validate state
     if (status === "LOBBY") {
+      // Not started yet
       router.push("/tournament")
       return
     }
 
+    // Allow DRAWING, RUNNING, and FINISHED
     if (status !== "DRAWING" && status !== "RUNNING" && status !== "FINISHED") {
+      console.log("[Bracket] Invalid status:", status, "- redirecting to lobby")
       router.push("/tournament")
       return
     }
 
     if (storeMatches.length === 0) {
+      console.log("[Bracket] No matches found - redirecting to lobby")
       router.push("/tournament")
       return
     }

@@ -61,13 +61,7 @@ export function TournamentProvider({
         }
       }
 
-      // Check if tournament status changed to DRAWING or RUNNING
-      if (previousStatus.current === "LOBBY" && (newStatus === "DRAWING" || newStatus === "RUNNING")) {
-        console.log(`[Provider] Tournament started! Status: ${newStatus}. Redirecting to bracket...`)
-        router.push("/tournament/bracket")
-        return
-      }
-
+      // Update state (no redirect - let pages handle navigation)
       previousPlayerIds.current = newPlayerIds
       previousStatus.current = newStatus
       setPlayers(newPlayers)
