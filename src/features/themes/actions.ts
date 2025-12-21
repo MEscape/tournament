@@ -4,6 +4,7 @@
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { hash } from "bcrypt"
 import type { ApiResponse } from "@/types/api.types"
 
 // ============================================
@@ -16,13 +17,46 @@ export async function suggestTheme(data: {
   shop?: string
   budget?: number
   preferences?: string
+  anonymousName?: string // Für nicht-angemeldete User
 }): Promise<ApiResponse<void>> {
   try {
     const session = await auth()
+
+    // Anonyme Vorschläge erlauben
     if (!session?.user) {
-      return { success: false, error: "Nicht angemeldet" }
+      // Erstelle temporären "Gast" User wenn keiner existiert
+      let guestUser = await prisma.user.findFirst({
+        where: { username: "guest_user" }
+      })
+
+      if (!guestUser) {
+        const guestPassword = await hash("guest123", 10)
+        guestUser = await prisma.user.create({
+          data: {
+            username: "guest_user",
+            password: guestPassword,
+            imageUrl: "https://avatar.vercel.sh/guest",
+            role: "USER",
+          }
+        })
+      }
+
+      await prisma.themeSuggestion.create({
+        data: {
+          title: data.title,
+          description: data.description,
+          shop: data.shop,
+          budget: data.budget,
+          preferences: data.preferences,
+          userId: guestUser.id,
+        },
+      })
+
+      revalidatePath("/themes")
+      return { success: true }
     }
 
+    // Normaler angemeldeter User
     await prisma.themeSuggestion.create({
       data: {
         title: data.title,

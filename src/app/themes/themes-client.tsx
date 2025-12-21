@@ -221,14 +221,13 @@ export function ThemesClient({ user }: ThemesClientProps) {
 
         {/* Actions */}
         <div className="mb-8">
-          {user ? (
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="lg" className="bg-primary hover:bg-primary/90">
-                  <Plus className="h-5 w-5 mr-2" />
-                  Thema vorschlagen
-                </Button>
-              </DialogTrigger>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="lg" className="bg-primary hover:bg-primary/90">
+                <Plus className="h-5 w-5 mr-2" />
+                Thema vorschlagen
+              </Button>
+            </DialogTrigger>
               <DialogContent className="max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Neues Thema vorschlagen</DialogTitle>
@@ -299,13 +298,6 @@ export function ThemesClient({ user }: ThemesClientProps) {
                 </div>
               </DialogContent>
             </Dialog>
-          ) : (
-            <Card className="p-6 bg-card/50 backdrop-blur border-primary/20">
-              <p className="text-muted-foreground">
-                Melde dich an, um Themen vorzuschlagen
-              </p>
-            </Card>
-          )}
         </div>
 
         {/* Admin: Pending Suggestions */}

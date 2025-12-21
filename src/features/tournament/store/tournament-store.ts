@@ -56,6 +56,106 @@ class TournamentStore {
   // Config (leicht anpassbar)
   private readonly MAX_PLAYERS = 16
 
+  constructor() {
+    // Füge 10 Test-Spieler hinzu für einfacheres Testen
+    this.addTestPlayers()
+  }
+
+  // ============================================
+  // TEST DATA
+  // ============================================
+
+  private addTestPlayers() {
+    const testPlayers: TournamentPlayer[] = [
+      {
+        userId: "test-player-1",
+        username: "TestSpieler1",
+        imageUrl: "https://avatar.vercel.sh/player1",
+        role: "USER",
+        isReady: false,
+        joinedAt: Date.now() - 10000,
+      },
+      {
+        userId: "test-player-2",
+        username: "TestSpieler2",
+        imageUrl: "https://avatar.vercel.sh/player2",
+        role: "USER",
+        isReady: false,
+        joinedAt: Date.now() - 9000,
+      },
+      {
+        userId: "test-player-3",
+        username: "TestSpieler3",
+        imageUrl: "https://avatar.vercel.sh/player3",
+        role: "USER",
+        isReady: false,
+        joinedAt: Date.now() - 8000,
+      },
+      {
+        userId: "test-player-4",
+        username: "TestSpieler4",
+        imageUrl: "https://avatar.vercel.sh/player4",
+        role: "USER",
+        isReady: false,
+        joinedAt: Date.now() - 7000,
+      },
+      {
+        userId: "test-player-5",
+        username: "TestSpieler5",
+        imageUrl: "https://avatar.vercel.sh/player5",
+        role: "USER",
+        isReady: false,
+        joinedAt: Date.now() - 6000,
+      },
+      {
+        userId: "test-player-6",
+        username: "TestSpieler6",
+        imageUrl: "https://avatar.vercel.sh/player6",
+        role: "USER",
+        isReady: false,
+        joinedAt: Date.now() - 5000,
+      },
+      {
+        userId: "test-player-7",
+        username: "TestSpieler7",
+        imageUrl: "https://avatar.vercel.sh/player7",
+        role: "USER",
+        isReady: false,
+        joinedAt: Date.now() - 4000,
+      },
+      {
+        userId: "test-player-8",
+        username: "TestSpieler8",
+        imageUrl: "https://avatar.vercel.sh/player8",
+        role: "USER",
+        isReady: false,
+        joinedAt: Date.now() - 3000,
+      },
+      {
+        userId: "test-player-9",
+        username: "TestSpieler9",
+        imageUrl: "https://avatar.vercel.sh/player9",
+        role: "USER",
+        isReady: false,
+        joinedAt: Date.now() - 2000,
+      },
+      {
+        userId: "test-player-10",
+        username: "TestSpieler10",
+        imageUrl: "https://avatar.vercel.sh/player10",
+        role: "USER",
+        isReady: false,
+        joinedAt: Date.now() - 1000,
+      },
+    ]
+
+    testPlayers.forEach((player) => {
+      this.players.set(player.userId, player)
+    })
+
+    console.log(`[Store] Added 10 test players to lobby`)
+  }
+
   // ============================================
   // PLAYER MANAGEMENT
   // ============================================
