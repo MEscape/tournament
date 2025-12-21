@@ -108,16 +108,16 @@ export function MatchClient({ matchId, user }: MatchClientProps) {
     return () => clearInterval(interval)
   }, [match, router])
 
-  // Polling for updates
+  // Polling for updates (but not initial load)
   useEffect(() => {
-    if (!match) return
+    if (!match || loading) return
 
     const interval = setInterval(() => {
       loadMatch()
     }, 3000)
 
     return () => clearInterval(interval)
-  }, [match, loadMatch])
+  }, [match, loading, loadMatch])
 
   if (loading || !match) {
     return (
