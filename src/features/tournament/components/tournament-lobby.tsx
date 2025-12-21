@@ -100,14 +100,9 @@ export function TournamentLobby({ user }: TournamentLobbyProps) {
 
     setActionLoading(true)
     const result = await startMatchDrawing()
-    if (result.success && result.data) {
-      console.log("[Lobby] Match drawing started with", result.data.matches.length, "matches")
-
-      // WICHTIG: Warte einen kurzen Moment damit der Store definitiv updated ist
-      // bevor wir navigieren. Das verhindert dass bracket "no matches" sieht.
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      console.log("[Lobby] Navigating to bracket...")
+    if (result.success) {
+      console.log("[Lobby] Match drawing started, navigating to bracket...")
+      // Navigate to bracket with drawing animation
       router.push("/tournament/bracket")
     } else {
       alert(result.error)

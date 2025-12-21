@@ -69,21 +69,8 @@ export async function startMatch(data: {
       status: "PENDING", // Will be set to RUNNING after countdown
     })
 
-    // Save to database
-    await prisma.activeMatch.create({
-      data: {
-        id: match.id,
-        themeId: theme.id,
-        duration: durationSeconds,
-        player1Id: player1.userId,
-        player1Name: player1.username,
-        player1Image: player1.imageUrl,
-        player2Id: player2.userId,
-        player2Name: player2.username,
-        player2Image: player2.imageUrl,
-        status: "PENDING",
-      },
-    })
+    // Save to database removed - we keep everything in-memory!
+    // Only matchStore is used for active matches
 
     return {
       success: true,
@@ -115,17 +102,7 @@ export async function updatePlayerList(data: {
       return { success: false, error: "Match nicht gefunden" }
     }
 
-    // Update in database
-    const match = matchStore.getMatch(data.matchId)
-    if (match) {
-      await prisma.activeMatch.update({
-        where: { id: data.matchId },
-        data: {
-          player1List: match.player1.list,
-          player2List: match.player2.list,
-        },
-      })
-    }
+    // In-memory only - no database update needed
 
     return { success: true }
   } catch (error) {
@@ -216,15 +193,7 @@ export async function startMatchCountdown(matchId: string): Promise<ApiResponse<
 
     matchStore.updateStatus(matchId, "RUNNING")
 
-    // Update database
-    await prisma.activeMatch.update({
-      where: { id: matchId },
-      data: {
-        status: "RUNNING",
-        startedAt: new Date(),
-        endsAt: new Date(Date.now() + (matchStore.getMatch(matchId)?.duration ?? 0) * 1000),
-      },
-    })
+    // In-memory only - no database update needed
 
     return { success: true }
   } catch (error) {

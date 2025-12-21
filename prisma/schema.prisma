@@ -90,53 +90,10 @@ model Theme {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
-  // Relations
-  activeMatches ActiveMatch[]
-
   @@index([isActive])
   @@index([title])
 }
 
-model ActiveMatch {
-  id            String         @id @default(cuid())
-
-  // Theme
-  themeId       String
-  theme         Theme          @relation(fields: [themeId], references: [id])
-
-  // Config
-  duration      Int            // in seconds
-  startedAt     DateTime?
-  endsAt        DateTime?
-
-  // Players
-  player1Id     String
-  player1Name   String
-  player1Image  String
-  player1List   String         @default("")
-
-  player2Id     String
-  player2Name   String
-  player2Image  String
-  player2List   String         @default("")
-
-  // Result
-  winnerId      String?
-  status        ActiveMatchStatus @default(PENDING)
-
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-
-  @@index([status])
-  @@index([startedAt])
-}
-
-enum ActiveMatchStatus {
-  PENDING
-  RUNNING
-  COMPLETED
-  CANCELLED
-}
 
 enum ThemeStatus {
   PENDING

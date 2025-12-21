@@ -19,35 +19,36 @@ interface BracketClientProps {
 export function BracketClient({ user }: BracketClientProps) {
   const router = useRouter()
 
-  // Initialize state from store immediately
-  const initialStatus = tournamentStore.getStatus()
-  const storeMatches = tournamentStore.getMatches()
-  const storeTotalRounds = tournamentStore.getTotalRounds()
-
   const [loading, setLoading] = useState(true)
-  const [showDrawing, setShowDrawing] = useState(initialStatus === "DRAWING")
-  const [matches] = useState<Match[]>(storeMatches)
-  const [totalRounds] = useState(storeTotalRounds)
+  const [showDrawing, setShowDrawing] = useState(false)
+  const [matches, setMatches] = useState<Match[]>([])
+  const [totalRounds, setTotalRounds] = useState(0)
 
   useEffect(() => {
-    // Initial validation nur einmal - danach keine Redirects mehr!
-    // Das verhindert redirect loops wenn der Store sich ändert
+    // Lade Status und Matches DYNAMISCH aus dem Store
+    const currentStatus = tournamentStore.getStatus()
+    const currentMatches = tournamentStore.getMatches()
+    const currentRounds = tournamentStore.getTotalRounds()
 
-    if (initialStatus === "LOBBY") {
+    console.log("[Bracket] Loading - Status:", currentStatus, "Matches:", currentMatches.length)
+
+    // Validierung: Nur LOBBY ist invalid
+    if (currentStatus === "LOBBY") {
       console.log("[Bracket] Status is LOBBY - redirecting to lobby")
       router.push("/tournament")
       return
     }
 
-    if (storeMatches.length === 0) {
-      console.log("[Bracket] No matches found - redirecting to lobby")
-      router.push("/tournament")
-      return
-    }
+    // KEIN Check auf matches.length!
+    // Matches können initial 0 sein - das ist OK für Drawing Animation
 
-    // Validation erfolgreich - setze loading auf false
+    // Setze State
+    setMatches(currentMatches)
+    setTotalRounds(currentRounds)
+    setShowDrawing(currentStatus === "DRAWING")
     setLoading(false)
-    console.log("[Bracket] Initialized successfully with status:", initialStatus)
+
+    console.log("[Bracket] Initialized successfully")
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // Nur einmal beim Mount!
