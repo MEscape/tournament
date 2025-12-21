@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { Clock, ShoppingCart, Euro, List as ListIcon } from "lucide-react"
 import { Card } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
 import { GlobalNavigation } from "@/components/global-navigation"
@@ -34,10 +33,47 @@ export function MatchClient({ matchId, user }: MatchClientProps) {
   const isAdmin = user.role === "ADMIN"
   const isPlayer = match?.player1.userId === user.id || match?.player2.userId === user.id
 
+  // Load match state
+  const loadMatch = useCallback(async () => {
+    const result = await getMatchState(matchId)
+    if (!result.success) {
+      alert(result.error)
+      router.push("/tournament/bracket")
+      return
+    }
+
+    setMatch(result.data!.match)
+    setIsPlayer1(result.data!.isPlayer1)
+    setRemainingTime(result.data!.remainingTime)
+
+    // Set initial list only if not already set
+    if (loading) {
+      if (result.data!.isPlayer1) {
+        setMyList(result.data!.match.player1.list)
+      } else if (result.data!.match.player2.userId === user.id) {
+        setMyList(result.data!.match.player2.list)
+      }
+      setLoading(false)
+    }
+  }, [matchId, router, user.id, loading])
+
+  // Save list
+  const saveList = useCallback(async () => {
+    if (saving) return
+    setSaving(true)
+
+    await updatePlayerList({
+      matchId,
+      list: myList,
+    })
+
+    setSaving(false)
+  }, [matchId, myList, saving])
+
   // Load initial state
   useEffect(() => {
     loadMatch()
-  }, [matchId])
+  }, [loadMatch])
 
   // Auto-save list every 2 seconds
   useEffect(() => {
@@ -50,7 +86,7 @@ export function MatchClient({ matchId, user }: MatchClientProps) {
     }, 2000)
 
     return () => clearInterval(interval)
-  }, [myList, isPlayer, match, isPlayer1])
+  }, [myList, isPlayer, match, isPlayer1, saveList])
 
   // Timer countdown
   useEffect(() => {
@@ -81,41 +117,7 @@ export function MatchClient({ matchId, user }: MatchClientProps) {
     }, 3000)
 
     return () => clearInterval(interval)
-  }, [match])
-
-  const loadMatch = async () => {
-    const result = await getMatchState(matchId)
-    if (!result.success) {
-      alert(result.error)
-      router.push("/tournament/bracket")
-      return
-    }
-
-    setMatch(result.data!.match)
-    setIsPlayer1(result.data!.isPlayer1)
-    setRemainingTime(result.data!.remainingTime)
-
-    // Set initial list
-    if (result.data!.isPlayer1) {
-      setMyList(result.data!.match.player1.list)
-    } else if (result.data!.match.player2.userId === user.id) {
-      setMyList(result.data!.match.player2.list)
-    }
-
-    setLoading(false)
-  }
-
-  const saveList = async () => {
-    if (saving) return
-    setSaving(true)
-
-    await updatePlayerList({
-      matchId,
-      list: myList,
-    })
-
-    setSaving(false)
-  }
+  }, [match, loadMatch])
 
   if (loading || !match) {
     return (

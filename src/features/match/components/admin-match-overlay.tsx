@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Play, X, Dices } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -23,6 +23,12 @@ import {
 import { getActiveThemes } from "@/features/themes/actions"
 import { startMatch, startMatchCountdown } from "@/features/match/actions/match-actions"
 
+interface Theme {
+  id: string
+  title: string
+  description: string | null
+}
+
 interface AdminMatchOverlayProps {
   open: boolean
   onClose: () => void
@@ -40,17 +46,11 @@ export function AdminMatchOverlay({
   const [duration, setDuration] = useState([5]) // minutes
   const [themeMode, setThemeMode] = useState<"random" | "manual">("random")
   const [selectedThemeId, setSelectedThemeId] = useState<string>("")
-  const [themes, setThemes] = useState<any[]>([])
+  const [themes, setThemes] = useState<Theme[]>([])
   const [loading, setLoading] = useState(false)
   const [countdown, setCountdown] = useState<number | null>(null)
 
-  useEffect(() => {
-    if (open) {
-      loadThemes()
-    }
-  }, [open])
-
-  const loadThemes = async () => {
+  const loadThemes = useCallback(async () => {
     const result = await getActiveThemes()
     if (result.success && result.data) {
       setThemes(result.data)
@@ -58,7 +58,13 @@ export function AdminMatchOverlay({
         setSelectedThemeId(result.data[0].id)
       }
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (open) {
+      loadThemes()
+    }
+  }, [open, loadThemes])
 
   const handleStart = async () => {
     if (themes.length === 0) {
