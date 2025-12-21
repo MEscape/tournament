@@ -4,7 +4,6 @@
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
-import { hash } from "bcrypt"
 import type { ApiResponse } from "@/types/api.types"
 
 // ============================================
@@ -17,46 +16,27 @@ export async function suggestTheme(data: {
   shop?: string
   budget?: number
   preferences?: string
-  anonymousName?: string // Für nicht-angemeldete User
+  anonymousName?: string
 }): Promise<ApiResponse<void>> {
   try {
     const session = await auth()
 
-    // Anonyme Vorschläge erlauben
-    if (!session?.user) {
-      // Erstelle temporären "Gast" User wenn keiner existiert
-      let guestUser = await prisma.user.findFirst({
-        where: { username: "guest_user" }
+    // Für anonyme Vorschläge - einfach mit Admin User ID (wird später angezeigt als "Anonym")
+    let userId = session?.user?.id
+
+    if (!userId) {
+      // Hole Admin User als Fallback für anonyme Vorschläge
+      const adminUser = await prisma.user.findFirst({
+        where: { role: "ADMIN" }
       })
 
-      if (!guestUser) {
-        const guestPassword = await hash("guest123", 10)
-        guestUser = await prisma.user.create({
-          data: {
-            username: "guest_user",
-            password: guestPassword,
-            imageUrl: "https://avatar.vercel.sh/guest",
-            role: "USER",
-          }
-        })
+      if (!adminUser) {
+        return { success: false, error: "System-Fehler" }
       }
 
-      await prisma.themeSuggestion.create({
-        data: {
-          title: data.title,
-          description: data.description,
-          shop: data.shop,
-          budget: data.budget,
-          preferences: data.preferences,
-          userId: guestUser.id,
-        },
-      })
-
-      revalidatePath("/themes")
-      return { success: true }
+      userId = adminUser.id
     }
 
-    // Normaler angemeldeter User
     await prisma.themeSuggestion.create({
       data: {
         title: data.title,
@@ -64,7 +44,7 @@ export async function suggestTheme(data: {
         shop: data.shop,
         budget: data.budget,
         preferences: data.preferences,
-        userId: session.user.id,
+        userId: userId,
       },
     })
 

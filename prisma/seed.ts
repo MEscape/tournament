@@ -28,36 +28,7 @@ async function main() {
   console.log('   Password: admin123')
   console.log('   Role:', admin.role)
 
-  // Create 10 test players
-  console.log('\n👥 Creating 10 test players...')
-
-  const testPlayers = []
-  for (let i = 1; i <= 10; i++) {
-    const playerPassword = await hash(`player${i}123`, 10)
-
-    // Create access code for player
-    const accessCode = await prisma.accessCode.create({
-      data: {
-        createdById: admin.id,
-      },
-    })
-
-    // Create player
-    const player = await prisma.user.create({
-      data: {
-        username: `player${i}`,
-        password: playerPassword,
-        imageUrl: `https://avatar.vercel.sh/player${i}`,
-        role: 'USER',
-        accessCodeId: accessCode.id,
-      },
-    })
-
-    testPlayers.push(player)
-    console.log(`   ✓ Player ${i}: player${i} (password: player${i}123)`)
-  }
-
-  // Create some additional unused access codes
+  // Create some test access codes
   const code1 = await prisma.accessCode.create({
     data: {
       createdById: admin.id,
@@ -70,13 +41,11 @@ async function main() {
     },
   })
 
-  console.log('\n✅ Additional access codes created:')
+  console.log('✅ Test access codes created:')
   console.log('  -', code1.code)
   console.log('  -', code2.code)
 
-  console.log('\n🎉 Seeding completed!')
-  console.log(`   Total users: ${testPlayers.length + 1} (1 admin + ${testPlayers.length} players)`)
-  console.log('   Total access codes: 12 (10 used + 2 unused)')
+  console.log('🎉 Seeding completed!')
 }
 
 main()
